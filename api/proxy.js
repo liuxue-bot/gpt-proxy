@@ -1,19 +1,23 @@
 export default async function handler(req, res) {
   try {
-    // 如果是 POST 请求，就读取 body，否则返回默认信息
-    const body = req.method === "POST" ? req.body : { msg: "Hello Proxy" };
+    const body = req.body || {};
+    console.log("收到 GPT 请求: ", body);
 
-    // 转发到 webhook.site
-    await fetch("https://webhook.site/77e7bf1f-d263-4b0e-899f-93859716f6ac", {
+    // 🚨 已替换成你的 Zapier Webhook URL
+    const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/24591280/umuyd69/";
+
+    // 转发数据到 Zapier
+    await fetch(ZAPIER_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
-    // 成功时返回
+    // 返回给 GPT 确认信息
     res.status(200).json({ ok: true, received: body });
+
   } catch (error) {
-    console.error("代理错误:", error);
+    console.error("转发失败: ", error);
     res.status(500).json({ ok: false, error: error.message });
   }
 }
